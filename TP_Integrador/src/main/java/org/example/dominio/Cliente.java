@@ -1,29 +1,58 @@
 package org.example.dominio;
 
-import lombok.AllArgsConstructor;
+import jakarta.persistence.*;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
-import javax.persistence.Entity;
-import javax.persistence.Table;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+
 @Getter
 @Setter
+@Entity
+@Table(name = "clientes")
 public class Cliente {
 
+    @Id
+    @Column(name = "id_cliente", columnDefinition = "INTEGER")
+    private Long id;
+
+    @Column(name = "razon_social", columnDefinition = "VARCHAR(100)")
     private String razonSocial;
 
+    @Column(name = "cuit", columnDefinition = "VARCHAR(100)")
     private String CUIT;
 
-    private List<Servicio> serviciosContratados;
+    @OneToMany(mappedBy = "cliente", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Incidente> incidentes;
 
-    public Cliente( String razonSocial, String CUIT) {
+    @ManyToMany(cascade = {
+            CascadeType.PERSIST,
+            CascadeType.MERGE
+    })
+    @JoinTable(
+            name = "cliente_servicios",
+            joinColumns = {@JoinColumn(name = "id_cliente")},
+            inverseJoinColumns = {@JoinColumn(name = "id_servicio")}
+    )
+    private Set<Servicio> serviciosContratados;
+
+    public Cliente(){}
+
+    public Cliente(String razonSocial, String CUIT) {
         this.razonSocial = razonSocial;
         this.CUIT = CUIT;
-        this.serviciosContratados = new ArrayList<>();
     }
+
+    public boolean puedeReportarIncidente(String nombreServicio) {
+        if (incidentes.stream()
+                .anyMatch(incidente -> incidente.getTipoDeServicio().getNombre().equals(nombreServicio))
+                && serviciosContratados.stream()
+                .anyMatch(servicio -> servicio.getNombre().equals(nombreServicio))) return true;
+        else return false;
+    }
+
 
     @Override
     public String toString() {

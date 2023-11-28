@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+    <component name="JpbDataSourceConfig">
+        <data-sources>
+            <data-source id="53586f62-396d-4ee0-bfb6-d24e91ea3d61" name="Main" url="jdbc:mysql://localhost/trabajo_integrador" driverClass="com.mysql.cj.jdbc.Driver" />
+        </data-sources>
+        <data-source-infos>
+            <data-source-info id="53586f62-396d-4ee0-bfb6-d24e91ea3d61" persistence-unit-name="Default" />
+            <data-source-info id="53586f62-396d-4ee0-bfb6-d24e91ea3d61" persistence-unit-name="persistencia" />
+        </data-source-infos>
+    </component>
+</project>

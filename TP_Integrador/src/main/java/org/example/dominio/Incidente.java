@@ -1,34 +1,60 @@
 package org.example.dominio;
 
-import lombok.AllArgsConstructor;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Date;
 
 @Getter
 @Setter
-@AllArgsConstructor
+@Entity
+@Table(name = "incidentes")
 public class Incidente {
 
-    private Cliente cliente;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-    private List<Problema> problemas;
-
-    private Tecnico tecnicoAsignado;
-
+    @Column(name = "descripcion", columnDefinition = "VARCHAR(100)")
     private String descripcion;
 
-    private int tiempoEstimadoResolucion;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_cliente")
+    private Cliente cliente;
 
-    public Incidente(Cliente cliente, Tecnico tecnicoAsignado, int tiempoEstimadoResolucion) {
-        this.cliente = cliente;
-        this.tecnicoAsignado = tecnicoAsignado;
-        this.tiempoEstimadoResolucion = tiempoEstimadoResolucion;
-        this.problemas = new ArrayList<>();
+    @OneToOne(mappedBy = "incidenteAsignado", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private Tecnico tecnico;
+
+    @Column(name = "fecha_ingreso", columnDefinition = "INTEGER")
+    private Date fechaIngreso;
+
+    @Column(name = "fecha_resolucion", columnDefinition = "INTEGER")
+    private Date fechaEstimadaResolucion;
+
+    private Especialidad especialidadRequeridaParaResolverlo;
+
+    private Servicio tipoDeServicio;
+
+    @Column(name = "estado", columnDefinition = "VARCHAR(100)")
+    private Estado estado;
+
+    public Incidente() {
+        estado = new Creado();
     }
 
-
+    @Override
+    public String toString() {
+        return "Incidente{" +
+                "id=" + id +
+                ", descripcion='" + descripcion + '\'' +
+                ", cliente=" + cliente +
+                ", tecnico=" + tecnico +
+                ", fechaIngreso=" + fechaIngreso +
+                ", fechaEstimadaResolucion=" + fechaEstimadaResolucion +
+                ", especialidadRequeridaParaResolverlo=" + especialidadRequeridaParaResolverlo +
+                ", tipoDeServicio=" + tipoDeServicio +
+                ", estado=" + estado +
+                '}';
+    }
 }
 

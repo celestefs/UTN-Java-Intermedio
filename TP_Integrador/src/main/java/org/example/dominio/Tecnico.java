@@ -1,42 +1,74 @@
 package org.example.dominio;
 
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 @Getter
 @Setter
+@Entity
+@Table(name = "tecnicos")
 public class Tecnico {
 
+    @Id
+    @Column(name = "id_tecnico")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(name = "nombre", columnDefinition = "VARCHAR(100)")
     private String nombre;
 
+    @Column(name = "apellido", columnDefinition = "VARCHAR(100)")
     private String apellido;
 
-    private List<Especialidad> especialidades;
+    @Column(name = "medio_notificacion", columnDefinition = "VARCHAR(100)")
+    private String medioNotificacion;
 
-    private String medioNotificacionPreferido;
-
+    @OneToOne(fetch = FetchType.LAZY, cascade = { CascadeType.ALL })
+    @JoinColumn(name = "id_incidente")
     private Incidente incidenteAsignado;
 
+    @ManyToMany(cascade = {
+            CascadeType.PERSIST,
+            CascadeType.MERGE
+    })
+    @JoinTable(
+            name = "tecnico_especialidades",
+            joinColumns = {@JoinColumn(name = "id_tecnico")},
+            inverseJoinColumns = {@JoinColumn(name = "id_especialidad")}
+    )
+    private Set<Especialidad> especialidades;
 
-    public Tecnico(String nombre, String apellido, String medioNotificacionPreferido) {
-        this.nombre = nombre;
-        this.apellido = apellido;
-        this.medioNotificacionPreferido = medioNotificacionPreferido;
-        this.especialidades = new ArrayList<>();
-    }
+    public Tecnico() {}
 
     public boolean estaDisponible() {
-        return true;
+        if (incidenteAsignado == null) {
+            return true;
+        }
+        return false;
+    }
+
+    public boolean puedeResolverIncidente() {
+        if (getEspecialidades().stream()
+                .anyMatch(e -> e.getNombre().equals(incidenteAsignado.getEspecialidadRequeridaParaResolverlo()))) {
+            return true;
+        }
+        return false;
     }
 
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append("Tecnico: ").append("\n");
-        sb.append("Nombre: ").append(nombre).append("\n");
-        sb.append("Apellido: ").append(apellido).append("\n");
+        sb.append("Tecnico: Nombre - ").append(nombre).append("\n");
+        sb.append("Apellido- ").append(apellido).append("\n");
+        sb.append("Medio de notificación- ").append(medioNotificacion).append("\n");
+        sb.append("Especialidades: ").append("\n");
+        for (Especialidad especialidad : especialidades) {
+            sb.append("- ").append(especialidad).append("\n");
+        }
         return sb.toString();
     }
+
 }
